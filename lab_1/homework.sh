@@ -3,10 +3,13 @@
 set -e
 
 cleanup() {
-    rm -rf "$temp_dir"
+    local rc=$?
+    trap - EXIT
+    rm -rf -- "$temp_dir"
+    exit $rc
 }
 
-trap cleanup EXIT INT TERM
+trap cleanup EXIT HUP INT QUIT PIPE TERM
 
 # trap нужен для обработки сигналов при выходе из скрипта
 # EXIT, INT, TERM - сигналы, при получении которых будет вызвана функция cleanup
