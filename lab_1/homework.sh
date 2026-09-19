@@ -21,10 +21,10 @@ file="${PWD}/$1"
 
 extension="${1##*.}"
 
-temp_dir=$(mktemp -d ${PWD}/temp.XXXXXX)
+temp_dir=$(mktemp -d "${PWD}"/temp.XXXXXX)
 
 if [ "$extension" == "cpp" ] || [ "$extension" == "c" ]; then
-    result=$(awk -F '&Output:' '{print $2}' $file | xargs)
+    result=$(awk -F '&Output:' '{print $2}' "$file" | xargs)
     # xargs удаляет пробелы в начале и конце строки, хотя используется он для того, чтобы подставить данные в аргументы команды, которые являются результатом другой программы
     # обычно он идет сразу после конвейера |, например, cat file.txt | xargs rm -f
     # awk ищет строку с &Output: и выводит всё, что после неё 
@@ -41,7 +41,7 @@ if [ "$extension" == "cpp" ] || [ "$extension" == "c" ]; then
             exit 1
         fi
 
-    	cp "$result" ${PWD}/..
+    	cp "$result" "${PWD}"/..
     
    	echo "Запуск программы..."
     	"./$result"  
@@ -60,7 +60,7 @@ elif [ "$extension" == "tex" ]; then
 	exit 1
     fi
 
-    cp "$temp_dir/$(basename "${file%.*}.pdf")" ${PWD}/..
+    cp "$temp_dir/$(basename "${file%.*}.pdf")" "${PWD}"/..
 else 
     echo "Файл не является cpp/c или tex"
 fi
