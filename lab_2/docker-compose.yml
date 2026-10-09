@@ -1,0 +1,10 @@
+services:
+  competitors:
+    build: .
+    image: competitors:lab_2
+    volumes:
+      - shared_volume:/shared
+
+volumes:
+  shared_volume:
+    external: true
