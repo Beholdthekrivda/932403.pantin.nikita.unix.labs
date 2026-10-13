@@ -9,11 +9,6 @@ exit_handler() {
 
 trap exit_handler HUP INT QUIT PIPE TERM
 
-
-if [ $1 -eq "stop" ]; then
-    docker compose down
-fi
-
 if [ -z $1 ]; then
     echo "Usage: ./script <replicas>"
     exit 1
@@ -32,4 +27,4 @@ docker compose down
 
 docker run --rm -v shared_volume:/shared alpine sh -c 'rm -f /shared/*'
 
-docker compose up --build --scale competitors="$replicas"
+docker compose up -d --build --scale competitors="$replicas"
