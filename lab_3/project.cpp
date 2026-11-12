@@ -5,8 +5,10 @@
 #include <string.h>
 #include <unordered_map>
 #include <cstdio>
+#include <unistd.h>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 string to_hex(const string &raw)
 {
@@ -58,36 +60,36 @@ int main(int argc, char *argv[])
 
   unordered_map<string, string> list;
 
-  std::filesystem::path DIR = argv[1];
+  fs::path DIR = argv[1];
 
   try 
   {
-    auto options = std::filesystem::directory_options::skip_permission_denied;
+    auto options = fs::directory_options::skip_permission_denied;
 
-    for (auto it = std::filesystem::recursive_directory_iterator(DIR, options);
-         it != std::filesystem::recursive_directory_iterator(); ++it) 
+    for (auto it = fs::recursive_directory_iterator(DIR, options);
+         it != fs::recursive_directory_iterator(); ++it) 
     {
 
       string filename = it->path().filename().string();
 
-      if (!filename.empty() && filename[0] == '.') 
-      {
-        if (std::filesystem::is_directory(it->status())) 
-        {
-          it.disable_recursion_pending();
-        }
-        continue;
-      }
-
-      if (std::filesystem::is_regular_file(it->status())) 
+      if (fs::is_regular_file(it->status())) 
       {
         // cout << "Файл: " << it->path().string() << endl;
 
         string sha1_hash = sha1_calc(it->path().string());
+        string hex = to_hex(sha1_hash);
 
-        list[to_hex(sha1_hash)] = it->path().string();
+        if (list.count(hex) > 0)
+        {
+          unlink(it->path().c_str());
+          link(list[hex].c_str(), it->path().c_str());
+        }
+        else
+        {
+          list[hex] = it->path().string();
+        }
       } 
-      else if (std::filesystem::is_directory(it->status())) 
+      else if (fs::is_directory(it->status())) 
       {
         // cout << "Директория: " << it->path().string() << endl;
       }
@@ -98,7 +100,7 @@ int main(int argc, char *argv[])
       cout << key << ": " << value << endl;
     }
   } 
-  catch (const std::filesystem::filesystem_error &e) 
+  catch (const fs::filesystem_error &e) 
   {
     cout << "Ошибка: " << e.what() << endl;
   }
