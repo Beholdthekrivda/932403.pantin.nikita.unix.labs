@@ -5,7 +5,6 @@
 #include <string.h>
 #include <unordered_map>
 #include <cstdio>
-#include <unistd.h>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -81,8 +80,17 @@ int main(int argc, char *argv[])
 
         if (list.count(hex) > 0)
         {
-          unlink(it->path().c_str());
-          link(list[hex].c_str(), it->path().c_str());
+          error_code err;
+
+          fs::remove(it->path().c_str(), err);
+
+          if (err)
+          {
+            cout << "Ошибка: " << err.message() << " " << err.value() << endl;
+            return 1;
+          }
+          
+          fs::create_hard_link(list[hex].c_str(), it->path().c_str());
         }
         else
         {
